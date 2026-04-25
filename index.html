@@ -1,0 +1,1168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="renderer" content="webkit">
+    <meta name="force-rendering" content="webkit">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="theme-color" content="#424242">
+    <meta name="description" content="柠檬的小屋 - 响应式导航菜单">
+    <meta name="keywords" content="Index, 柠檬, 服务器, 整合包">
+    <meta name="author" content="柠檬">
+    <title>浦西工造</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ---------- 全局重置 ---------- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        a {
+            text-decoration: none;
+        }
+        body {
+            background: #111;
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: radial-gradient(circle at 15% 30%, rgba(240, 110, 30, 0.03) 2%, transparent 2.5%),
+                              repeating-linear-gradient(45deg, rgba(255, 140, 40, 0.02) 0px, rgba(255, 140, 40, 0.02) 2px, transparent 2px, transparent 8px);
+            pointer-events: none;
+            z-index: -2;
+        }
+        .mainbody {
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* ---------- 导航栏 ---------- */
+        .nav {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 3px solid lightblue;
+            background: #000;
+            position: relative;
+            z-index: 30;
+            transition: all 0.2s ease;
+            padding: 0 50px;
+        }
+        .nav .logo {
+            height: 4.5rem;
+        }
+        .navbtn {
+            font-size: 25px;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 1px 2px #333;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0 5px;
+            color: white;
+            position: relative;
+        }
+        .navbtn-link {
+            font-size: 25px;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            text-shadow: 0 1px 2px #333;
+            margin: 0 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            padding: 0 5px;
+            color: white;
+            position: relative;
+            a {color: white;}
+        }
+        .navbtn .block {
+            width: 250px;
+            background: #222;
+            top: 100px;
+            padding: 0 5px;
+            position: absolute;
+            max-height: 0;
+            left: 0;
+            overflow: hidden;
+            border-radius: 10px;
+            transition: 0.2s;
+            z-index: 10000;
+        }
+        .navbtn .block a {
+            font-size: 20px;
+            color: white;
+            display: block;
+            padding: 8px 0;
+        }
+        .navbtn .block a i {
+            margin-right: 10px;
+        }
+        .navbtn a {
+            color: white;
+            transition: color 0.2s;
+        }
+        .navbtn img {
+            width: 42px;
+            height: 42px;
+            margin: 0 5px;
+            filter: drop-shadow(0 1px 1px rgba(0,0,0,0.5));
+        }
+        .navbtn:hover {
+            border-bottom: 3px solid yellow;
+            transform: translateY(-2px);
+        }
+        .navbtn:hover .block {
+            padding: 10px 5px;
+            max-height: 200px;
+            border: 1px solid #555;
+        }
+        .navbtn:hover a {
+            color: yellow;
+        }
+
+        /* 汉堡菜单按钮 */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 12px 8px;
+            margin-right: 20px;
+            z-index: 45;
+            border-radius: 12px;
+            transition: background 0.2s;
+        }
+        .hamburger span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #f0f0f0;
+            border-radius: 6px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hamburger:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+            transform: scaleX(0);
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-12px) rotate(-45deg);
+        }
+
+        /* 移动端菜单面板 */
+        .mobile-menu {
+            position: absolute;
+            top: 120px;
+            left: 0;
+            width: 100%;
+            background: rgba(17, 17, 17, 0.98);
+            backdrop-filter: blur(12px);
+            border-bottom: 2px solid rgba(173, 216, 230, 0.6);
+            box-shadow: 0 20px 30px -12px rgba(0,0,0,0.6);
+            z-index: 40;
+            transform: translateY(-120%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.35s cubic-bezier(0.2, 0.9, 0.4, 1.1), opacity 0.3s ease, visibility 0.3s;
+            border-radius: 0 0 28px 28px;
+            overflow-y: auto;
+            max-height: calc(100vh - 120px);
+        }
+        .mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+        }
+        .mobile-nav-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+            padding: 18px 24px;
+            transition: background 0.2s, padding-left 0.2s;
+            cursor: pointer;
+        }
+        .mobile-nav-item:active {
+            background: rgba(255, 215, 0, 0.1);
+        }
+        .mobile-nav-item a {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            width: 100%;
+            font-size: 24px;
+            font-weight: 500;
+            color: white;
+            letter-spacing: 1px;
+        }
+        .mobile-nav-item img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+        }
+        .mobile-nav-item span {
+            flex: 1;
+            text-align: left;
+        }
+        .mobile-nav-item:hover {
+            background: rgba(255, 200, 50, 0.12);
+            border-left: 4px solid gold;
+            padding-left: 20px;
+        }
+
+        .nav-placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            width: 80px;
+            visibility: hidden;
+        }
+
+        /* ========== 移动端样式增强 (手机适配核心) ========== */
+        @media (max-width: 768px) {
+            .nav {
+                justify-content: space-between;
+                padding: 0 16px;
+                height: 90px;
+            }
+            .nav .navbtn {
+                display: none;
+            }
+            .hamburger {
+                display: flex;
+            }
+            .nav-placeholder {
+                visibility: visible;
+                font-size: 20px;
+                font-weight: 500;
+                background: linear-gradient(135deg, #ffb347, #ffdd99);
+                background-clip: text;
+                -webkit-background-clip: text;
+                color: transparent;
+                letter-spacing: 1px;
+                width: auto;
+            }
+            .mobile-nav-item a {
+                font-size: 20px;
+            }
+            .mobile-nav-item img {
+                width: 34px;
+                height: 34px;
+            }
+
+            /* 首页 hero 区域改为垂直布局 */
+            .hero {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .hero-info {
+                width: 90%;
+                padding: 40px 15px 20px;
+            }
+            .hero-info h1 {
+                font-size: 2rem;
+                background: linear-gradient(135deg, #fff, #FFAF7A);
+                background-clip: text;
+                -webkit-background-clip: text;
+            }
+            .hero-info p {
+                font-size: 1rem;
+                margin: 0 auto 1.5rem;
+            }
+            .hero-icon {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .hero-icon img {
+                width: 100px;
+            }
+
+            /* 文字/视频切换按钮区域 */
+            .info-nav {
+                width: 94%;
+                display: flex;
+                justify-content: center;
+                gap: 20px;
+            }
+            .info-nav button {
+                font-size: 24px;
+                padding: 8px 16px;
+            }
+
+            /* 卡片内容区域 */
+            .card-block {
+                width: 94%;
+                padding: 30px 20px;
+                margin: 0 auto;
+            }
+            .card-block h1 {
+                font-size: 1.8rem;
+            }
+            .card-block p {
+                font-size: 16px;
+                line-height: 1.5;
+            }
+            .card-block .info {
+                grid-template-columns: 1fr;
+                gap: 16px;
+            }
+            .card-block .card {
+                height: auto;
+                min-height: 200px;
+                padding: 20px;
+            }
+            .card-block .card h2 {
+                font-size: 22px;
+            }
+            .card-block .card span {
+                font-size: 14px;
+            }
+
+            /* B站视频容器 */
+            .bilibili-video-container {
+                width: 94%;
+                margin: 0 auto;
+            }
+            .video-header {
+                flex-wrap: wrap;
+                padding: 1rem;
+            }
+            .video-header h4 {
+                font-size: 1.2rem;
+            }
+            .bilibili-video-wrapper iframe {
+                height: 100%;
+            }
+
+            /* 轮播图 */
+            .carousel {
+                width: 94%;
+                margin: 20px auto;
+            }
+
+            /* 服务器卡片区域 */
+            .cards-grid {
+                width: 94%;
+                margin: 0 auto;
+                gap: 1rem;
+            }
+            .card {
+                padding: 1.2rem;
+            }
+            .server-name {
+                font-size: 1rem;
+                max-width: 60%;
+            }
+            .motd {
+                font-size: 16px;
+                padding: 10px;
+            }
+            .player-count {
+                font-size: 1.5rem;
+            }
+            .player-list-header {
+                font-size: 1.2rem;
+            }
+
+            /* 服务器页面标题 */
+            #server h1 {
+                font-size: 24px;
+                padding: 0 16px;
+            }
+        }
+
+        /* 超小设备 (宽度 ≤ 480px) */
+        @media (max-width: 480px) {
+            .nav {
+                height: 80px;
+            }
+            .mobile-menu {
+                top: 80px;
+                max-height: calc(100vh - 80px);
+            }
+            .nav-placeholder span {
+                font-size: 18px;
+            }
+            .hero-info h1 {
+                font-size: 1.6rem;
+            }
+            .hero-info p {
+                font-size: 0.9rem;
+            }
+            .card-block h1 {
+                font-size: 1.5rem;
+            }
+            .card-block p {
+                font-size: 14px;
+            }
+            .info-nav button {
+                font-size: 20px;
+            }
+            .motd {
+                font-size: 14px;
+            }
+        }
+
+        /* 桌面及平板横屏 (≥769px) 保持原有样式，隐藏手机菜单 */
+        @media (min-width: 769px) {
+            .mobile-menu {
+                display: none;
+            }
+            .nav-placeholder {
+                display: none;
+            }
+            .hero .hero-info h1 {
+                font-size: 3.3rem;
+            }
+            .hero .hero-info p {
+                font-size: 1.2rem;
+            }
+            .hero .hero-icon img {
+                width: 170px;
+            }
+            .hero .card-block .info {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        /* ========== 其他原有样式保持不变（结构完整） ========== */
+        .hero {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .hero-info {
+            width: 60%;
+            padding: 70px 15px;
+            font-family: 'Inter', 'Space Grotesk', sans-serif;
+        }
+        .hero-badge {
+            background: rgba(224, 90, 26, 0.2);
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffa559;
+            margin-bottom: 1.5rem;
+            border-left: 3px solid #E05A1A;
+        }
+        .hero-info h1 {
+            font-size: 1.8rem;
+            font-weight: 800;
+            line-height: 1.2;
+            background: linear-gradient(135deg, #fff, #FFAF7A);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-bottom: 1.2rem;
+        }
+        .hero-info h1 .highlight {
+            color: #FFA251;
+        }
+        .hero-info p {
+            font-size: 0.8rem;
+            color: #b9c7e6;
+            margin-bottom: 2rem;
+            max-width: 550px;
+        }
+        .hero-icon {
+            width: 40%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .hero-icon img {
+            width: 120px;
+            border-radius: 50%;
+            animation: rotate 5s linear infinite;
+        }
+        @keyframes rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .page {
+            display: none;
+        }
+        .page.active {
+            display: block;
+        }
+        .hero.page.active {
+            display: flex;
+        }
+        .info-nav {
+            width: 96%;
+            background: #FFA251;
+            border-radius: 10px 10px 0 0;
+            border-bottom: 5px solid #222;
+        }
+        .info-nav button {
+            padding: 10px 15px;
+            color: white;
+            text-shadow: 0 2px 4px #666;
+            background: transparent;
+            border: none;
+            font-size: 30px;
+            transition: 0.4s;
+            cursor: pointer;
+        }
+        .info-nav button:hover {
+            font-weight: 600;
+        }
+        .bilibili-video-container {
+            border-radius: 15px;
+            display: none;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            width: 96%;
+        }
+        .bilibili-video-container .video-header {
+            background: linear-gradient(135deg, rgba(251, 114, 153, 0.4), rgba(251, 114, 153, 0.2));
+            backdrop-filter: blur(2px);
+            padding: 1.2rem 1.8rem;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid rgba(251, 114, 153, 0.2);
+        }
+        .bilibili-video-container .video-header i {
+            color: #fb7299;
+            font-size: 1.8rem;
+        }
+        .bilibili-video-container .video-header h4 {
+            margin: 0;
+            flex: 1;
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 600;
+        }
+        .bilibili-video-container .video-badge {
+            background: #fb7299;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .bilibili-video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%;
+            height: 0;
+            overflow: hidden;
+            background: #000;
+        }
+        .bilibili-video-wrapper iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .card-block {
+            width: 96%;
+            background: #222;
+            box-shadow: 0 2px 4px #111, inset 0 -15px 40px #111;
+            border-radius: 0 0 20px 20px;
+            border-left: 6px solid blue;
+            padding: 60px 40px;
+        }
+        .card-block h1 {
+            font-size: 2.5rem;
+            color: #FFA251;
+        }
+        .card-block p {
+            font-size: 19px;
+            color: #f2fffb;
+        }
+        .card-block .info {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        .card-block .card {
+            width: 100%;
+            height: 250px;
+            border-radius: 10px;
+            border-top: 5px solid #b5a642;
+            background: #111;
+            box-shadow: 0 3px 6px #222;
+            padding: 18px;
+            font-family: 'Inter', 'Space Grotesk', sans-serif;
+            transition: 0.4s;
+        }
+        .card-block .card:hover {
+            transform: translateY(-6px);
+            border-color: #888;
+        }
+        .card-block .card i {
+            color: #FFA251;
+            font-size: 36px;
+        }
+        .card-block .card h2 {
+            font-size: 25px;
+            color: white;
+            text-shadow: 0 1px 2px #000;
+            margin: 6px 0;
+        }
+        .card-block .card span {
+            font-size: 16px;
+            color: #afe;
+            line-height: 18px;
+            letter-spacing: 1px;
+        }
+        .carousel {
+            width: 96%;
+            aspect-ratio: 16/9;
+            position: relative;
+            overflow: hidden;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px #111;
+            margin: 20px 0;
+        }
+        .carousel img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scale(1.05);
+            position: absolute;
+            top: 0;
+            left: 0;
+            transition: 2s ease-in-out;
+            pointer-events: none;
+            opacity: 0;
+        }
+        .carousel img.active {
+            opacity: 1;
+            z-index: 1;
+        }
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 1.4rem;
+            width: 96%;
+            margin: 0 2%;
+        }
+        /* 服务器卡片样式 (复用 ) */
+        .card {
+            background: #333;
+            border-radius: 28px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05), 0 2px 4px rgba(0, 0, 0, 0.02);
+            padding: 1.5rem;
+            transition: all 0.2s ease;
+            border: 1px solid #555;
+        }
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .server-name {
+            font-weight: 700;
+            font-size: 1.25rem;
+            background: #222;
+            padding: 8px 12px;
+            border-radius: 35px;
+            color: #fff;
+            text-shadow: 0 1px 2px #666;
+            box-shadow: 0 2px 4px #333;
+            word-break: break-all;
+            max-width: 70%;
+        }
+        .status-badge {
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1px solid red;
+            border-radius: 40px;
+            background: #e2e8f0;
+            color: #334155;
+        }
+        .status-badge.online {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status-badge.offline {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .player-count {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 12px 0 8px;
+            color: #fff;
+            display: flex;
+            align-items: baseline;
+            gap: 3px;
+        }
+        .player-count small {
+            font-size: 0.9rem;
+            font-weight: 400;
+            color: #475569;
+        }
+        .motd {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 0.85rem;
+            margin: 16px 0;
+            border: 1.5px solid #FFA251;
+            box-shadow: 3px 3px #666, -3px 3px #666, 3px -3px #666, -3px -3px #666;
+            color: #fff;
+            font-size: 20px;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+        .player-list-section {
+            border-radius: 10px;
+            padding: 8px 0 8px 16px;
+            margin-top: 12px;
+            border: 1px solid #FFA251;
+        }
+        .player-list-header {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #FFA251;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .player-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 0 4px 4px 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .player-list li {
+            background: rgba(0,100,0,0.5);
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            list-style: none;
+            border: 1px solid green;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            color: #f2debd;
+        }
+        .footer-note {
+            font-size: 0.65rem;
+            color: #94a3b8;
+            text-align: right;
+            margin-top: 18px;
+            border-top: 1px solid #eef2f6;
+            padding-top: 12px;
+        }
+        #server h1 {
+            font-size: 32px;
+            text-align: center;
+            color: white;
+            text-shadow: 0 1px 2px #666;
+        }
+        @media (max-width: 700px) {
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        hr {
+            margin: 60px 0;
+            border: 1px solid #333;
+        }
+        .footer {
+            background-color: #111;
+            color: #fff;
+            padding: 2.5rem 1rem 1.8rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-top: 1px solid #1f2937;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .footer-copyright {
+            order: 1;
+        }
+
+        .footer-links {
+            order: 2;
+            font-size: 18px;
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #afeeee;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        .footer-icp {
+            order: 3;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        /* 响应式：小屏幕时居中排列 */
+        @media (max-width: 640px) {
+            .footer-container {
+                flex-direction: column;
+                text-align: center;
+                gap: 0.75rem;
+            }
+            .footer-links {
+                justify-content: center;
+            }
+        }
+
+        /* 简单装饰线 */
+        .footer hr {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="mainbody">
+    <nav class="nav">
+        <div class="nav-placeholder"><span>飞天浦西</span></div>
+        <img src="hkx.png" class="logo" alt="logo">
+        <button class="navbtn"><img src="./logo.png" alt="logo"><a href="#" data-page="hero">主页</a></button>
+        <button class="navbtn"><a href="#" data-page="server">官方服务器</a></button>
+        <button class="navbtn-link"><a href="http://github.com/">整合包下载</a></button>
+        <button class="navbtn">相关链接
+            <div class="block">
+                <a href="#"><i class="fa-brands fa-qq"></i>加入QQ群</a>
+            </div>
+        </button>
+        <button class="navbtn"><a href="#" data-page="about">关于我们</a></button>
+        <button class="hamburger" aria-label="菜单" id="hamburgerBtn">
+            <span></span><span></span><span></span>
+        </button>
+    </nav>
+    <div class="mobile-menu" id="mobileMenu"></div>
+    <br>
+    <div class="content">
+        <div class="hero page active" id="hero">
+            <div class="hero-info">
+                <div class="hero-badge"><i class="fas fa-wrench"></i> 机械动力 · 航空学</div>
+                <h1>飞起来！<br>天空 <span class="highlight">机械动力</span> 的极限</h1>
+                <p>基于 Create Mod 和 航空学 深度整合，体验最真实的应力网络、物理结构与全自动工业化。社区活跃，建筑与机器工程师的天堂。</p>
+            </div>
+            <div class="hero-icon"><img src="./logo.png" alt="hero"></div>
+            <div class="carousel" id="carousel"></div>
+            <div class="info-nav">
+                <button id="textBtn">文字介绍</button>
+                <button id="videoBtn">视频介绍</button>
+            </div>
+            <div class="card-block" id="cardblock">
+                <h1>「 机械动力 · 航空学 」</h1><br>
+                <p>在机械与天空的交界处，我们只提供规则，不提供剧本。<br><br>
+                欢迎来到一个真正的“无引导”航空时代。这里没有强制任务、没有路线图、更没有弹窗告诉你“下一步该做什么”。从你放下第一根传动轴开始，整个机械动力与航空学模组的科技树就完全交由你掌控——你可以选择扎根大地，建造精密工厂；也可以直接挑战天空，设计第一架能真正操控的飞艇。玩法自由，意味着每一次升空都是一场属于你自己的冒险。<br>
+                而当你遇到问题时，不必担心孤立无援。管理组以“极速响应”为铁律：无论是模组冲突、传动逻辑bug，还是区块卡顿，你都能在群里或工单系统中得到30分钟内的回复，复杂问题绝不拖延过夜。但最与众不同的，是管理组的态度——他们不是冷冰冰的规则执行者，而是会陪你一起调试坠毁的飞艇、帮你搬运建筑材料、甚至主动录制教程视频的伙伴。热情，从不摆架子。<br>
+                在这个服务器里，社交不是压力，而是温暖的引擎。玩家之间没有恶意竞争与资源圈地霸占，相反，你随时可以看到频道里热火朝天的航空学交流：谁设计了自动装填的轰炸机？谁建造了跨海货运飞艇？谁把机械动力铁路铺到了云层之上？大家乐于分享、互相试飞、共同建设。你不是在“和别人玩”，而是在和一群朋友书写一部属于你们的航空史诗。<br><br>
+                引擎已就绪，跑道已清空。唯一缺少的，就是你。</p><br><br>
+                <div class="info">
+                    <div class="card"><i class="fas fa-magic"></i><h2>管理热情 · 始终在线</h2><span>管理不是“规则执行器”，而是你的游乐场伙伴。发现有趣玩法，他们会组织小型比赛。热情，从不摆架子。</span></div>
+                    <div class="card"><i class="fas fa-map"></i><h2>玩法自由 · 无引导束缚</h2><span>没有任务清单，没有强制路线。服务器不提供任何“保姆式引导”——真正的创造，始于你的好奇心。</span></div>
+                    <div class="card"><i class="fas fa-leaf"></i><h2>问题处理 · 极速响应</h2><span>反馈即受理，解决不隔夜。你不需要在群里反复@人——提工单、发消息，会有人立刻接手。</span></div>
+                    <div class="card"><i class="fa-solid fa-user-group"></i><h2>社交氛围 · 融洽如家</h2><span>拒绝孤立与冷嘲，这里只有一起试飞的队友。你不是在“和别人玩”，而是在和一群朋友共同建设天空。</span></div>
+                </div>
+            </div>
+            <div class="bilibili-video-container" id="videoblock">
+                <div class="video-header"><i class="fab fa-bilibili"></i><h4>整合包近期内容</h4><a class="video-badge" href="https://b23.tv/Yzjbz8M">官方演示</a></div>
+                <div class="bilibili-video-wrapper"><iframe src="https://player.bilibili.com/player.html?bvid=BV1J6ouBKE14&page=1&high_quality=1" scrolling="no" border="0" frameborder="no" allowfullscreen="true"></iframe></div>
+            </div>
+
+        </div>
+        <div class="page" id="server"><div id="serversGrid" class="cards-grid"></div><br><h1>服务器IP通过QQ群聊获取</h1></div>
+        <hr>
+        <footer class="footer">
+            <div class="footer-container">
+                <div class="footer-copyright">
+                © 2026 浦西工造
+                </div>
+                <div class="footer-links">
+                    <a href="#" data-page="about">关于本站</a>
+                    <a href="#">隐私政策</a>
+                    <a href="#">联系我</a>
+                    <a href="https://github.com/magiclemon6" target="_blank" rel="noopener">GitHub</a>
+                </div>
+                <div class="footer-icp">
+                    <!-- 豫ICP备2026xxxxxx号 -->
+                    待备案
+                </div>
+            </div>
+        </footer>
+    </div>
+</div>
+
+<script>
+    // 增强版移动端适配脚本（保留原有所有功能，优化体验）
+    (function() {
+        // 构建手机菜单（从桌面导航克隆）
+        function buildMobileMenu() {
+            const originalBtns = document.querySelectorAll('.nav .navbtn');
+            const mobileContainer = document.getElementById('mobileMenu');
+            if (!mobileContainer) return;
+            mobileContainer.innerHTML = '';
+            originalBtns.forEach(btn => {
+                const link = btn.querySelector('a');
+                if (!link) return;
+                const img = btn.querySelector('img');
+                const pageId = link.getAttribute('data-page');
+                const linkText = link.innerText.trim();
+                const menuItem = document.createElement('div');
+                menuItem.className = 'mobile-nav-item';
+                const aTag = document.createElement('a');
+                aTag.setAttribute('href', '#');
+                if (pageId) aTag.setAttribute('data-page', pageId);
+                if (img) {
+                    const clonedImg = img.cloneNode(true);
+                    aTag.appendChild(clonedImg);
+                }
+                const span = document.createElement('span');
+                span.textContent = linkText;
+                aTag.appendChild(span);
+                menuItem.appendChild(aTag);
+                mobileContainer.appendChild(menuItem);
+            });
+        }
+
+        // Toast 提示函数
+        let showToast = window.showTinyHint;
+        if (typeof showToast !== 'function') {
+            showToast = function(text) {
+                let existing = document.querySelector('.micro-toast');
+                if (existing) existing.remove();
+                const toast = document.createElement('div');
+                toast.className = 'micro-toast';
+                toast.textContent = `🍋 ${text}`;
+                toast.style.cssText = `
+                    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                    background: #222; color: #ffdd99; padding: 10px 22px;
+                    border-radius: 40px; font-size: 16px; font-weight: 500;
+                    z-index: 9999; backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255,200,100,0.5);
+                    white-space: nowrap; pointer-events: none;
+                    transition: opacity 0.2s;
+                `;
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 1500);
+            };
+            window.showTinyHint = showToast;
+        }
+
+        // 页面切换核心函数
+        function switchToPage(pageId) {
+            if (!pageId) return;
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            const target = document.getElementById(pageId);
+            if (target) target.classList.add('active');
+            else return;
+            // 更新激活样式
+            document.querySelectorAll('.navbtn a, .mobile-nav-item a').forEach(link => {
+                if (link.getAttribute('data-page') === pageId) link.classList.add('active');
+                else link.classList.remove('active');
+            });
+            if (window.location.hash !== `#${pageId}`) {
+                history.pushState(null, null, `#${pageId}`);
+            }
+        }
+
+        // 统一导航点击
+        function onNavClick(e) {
+            const link = e.currentTarget;
+            const pageId = link.getAttribute('data-page');
+            if (!pageId) return;
+            e.preventDefault();
+            switchToPage(pageId);
+            const text = link.innerText.trim() || pageId;
+            showToast(text);
+            // 关闭手机菜单
+            const menu = document.getElementById('mobileMenu');
+            const hamburger = document.getElementById('hamburgerBtn');
+            if (menu && menu.classList.contains('open')) {
+                menu.classList.remove('open');
+                if (hamburger) hamburger.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        }
+
+        function bindDesktopLinks() {
+            document.querySelectorAll('.navbtn a').forEach(link => {
+                link.removeEventListener('click', onNavClick);
+                link.addEventListener('click', onNavClick);
+            });
+        }
+        function bindMobileLinks() {
+            document.querySelectorAll('.mobile-nav-item a').forEach(link => {
+                link.removeEventListener('click', onNavClick);
+                link.addEventListener('click', onNavClick);
+            });
+        }
+
+        // 汉堡菜单交互
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const mobileMenuDiv = document.getElementById('mobileMenu');
+        let isMenuOpen = false;
+        function openMenu() {
+            if (!mobileMenuDiv) return;
+            mobileMenuDiv.classList.add('open');
+            isMenuOpen = true;
+            hamburgerBtn?.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMenu() {
+            if (!mobileMenuDiv) return;
+            mobileMenuDiv.classList.remove('open');
+            isMenuOpen = false;
+            hamburgerBtn?.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        function toggleMenu(e) {
+            e.stopPropagation();
+            isMenuOpen ? closeMenu() : openMenu();
+        }
+        if (hamburgerBtn) hamburgerBtn.addEventListener('click', toggleMenu);
+        document.addEventListener('click', function(e) {
+            if (!isMenuOpen) return;
+            if (mobileMenuDiv && !mobileMenuDiv.contains(e.target) && !hamburgerBtn?.contains(e.target)) closeMenu();
+        });
+        if (mobileMenuDiv) mobileMenuDiv.addEventListener('click', e => e.stopPropagation());
+        window.addEventListener('resize', () => {
+            if (window.innerWidth >= 769 && isMenuOpen) closeMenu();
+        });
+
+        // 监听popstate
+        window.addEventListener('popstate', function() {
+            const hash = window.location.hash.substring(1);
+            if (hash && document.getElementById(hash)) switchToPage(hash);
+            else switchToPage('hero');
+        });
+
+        // 初始化
+        buildMobileMenu();
+        bindDesktopLinks();
+        bindMobileLinks();
+        if (mobileMenuDiv) {
+            const observer = new MutationObserver(() => bindMobileLinks());
+            observer.observe(mobileMenuDiv, { childList: true, subtree: true });
+        }
+        const initialHash = window.location.hash.substring(1);
+        if (initialHash && document.getElementById(initialHash)) switchToPage(initialHash);
+        else switchToPage('hero');
+    })();
+
+    // 文字/视频介绍切换
+    (function() {
+        const textBtn = document.getElementById('textBtn');
+        const videoBtn = document.getElementById('videoBtn');
+        const cardBlock = document.getElementById('cardblock');
+        const videoBlock = document.getElementById('videoblock');
+        if (textBtn && videoBtn && cardBlock && videoBlock) {
+            textBtn.onclick = () => { cardBlock.style.display = "block"; videoBlock.style.display = "none"; };
+            videoBtn.onclick = () => { cardBlock.style.display = "none"; videoBlock.style.display = "block"; };
+            cardBlock.style.display = "block";
+            videoBlock.style.display = "none";
+        }
+    })();
+
+    // 轮播图（保留原有图片，若不存在则不影响）
+    (function() {
+        const images = [
+            "/1.png", "/2.png", "/3.png", "/4.png"
+        ];
+        const INTERVAL = 6000;
+        const container = document.getElementById('carousel');
+        if (container && images.length) {
+            let currentIndex = 0;
+            let imgElements = [];
+            let timer = null;
+            function build() {
+                container.innerHTML = '';
+                images.forEach((src, idx) => {
+                    const img = document.createElement('img');
+                    img.src = src;
+                    img.alt = `轮播图 ${idx+1}`;
+                    if (idx === 0) img.classList.add('active');
+                    container.appendChild(img);
+                    imgElements.push(img);
+                });
+            }
+            function goTo(index) {
+                if (!imgElements.length) return;
+                imgElements[currentIndex].classList.remove('active');
+                currentIndex = index;
+                imgElements[currentIndex].classList.add('active');
+            }
+            function next() { goTo((currentIndex + 1) % imgElements.length); }
+            function start() { if (timer) clearInterval(timer); timer = setInterval(next, INTERVAL); }
+            build();
+            start();
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) { if (timer) clearInterval(timer); } else start();
+            });
+            window.addEventListener('beforeunload', () => { if (timer) clearInterval(timer); });
+        }
+    })();
+</script>
+<!-- 外部脚本（保留原有功能，如服务器状态等） -->
+<script src="page.js"></script>
+<script src="server.js"></script>
+</body>
+</html>
