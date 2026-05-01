@@ -3,8 +3,8 @@
     // 在这里添加你要监控的服务器，支持 Java版 & 基岩版 (API会自动识别)
     // 格式: { host: "服务器IP或域名:端口", name: "显示名称", showPlayerList: true/false 可选, 默认 true }
     const SERVERS_CONFIG = [
-        { host: "9950x1.singsi.cn:18356", name: "一号服", showPlayerList: true },
-        { host: "9950x1.singsi.cn:17173", name: "二号服", showPlayerList: true }   // 请换成你自己的服务器
+        { host: "109.244.32.211:18356", name: "一号服", showPlayerList: true },
+        { host: "109.244.32.211:17173", name: "二号服", showPlayerList: true }   // 请换成你自己的服务器
     ];
     // 刷新间隔（毫秒）
     const REFRESH_INTERVAL_MS = 30000;   // 30秒
